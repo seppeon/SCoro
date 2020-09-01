@@ -32,8 +32,11 @@ struct Event : B
 int main()
 {
     auto coro = std::make_unique<SCoro::SCoro<Start, Event>>();
-    // simulate async event
     coro->Poll();
+
+
+    // simulate async event
+    // This could be finished by an interrupt or scheduler, timer, IOCP etc...
     std::thread thread
     {
         [](decltype(coro) continue_after_event)
