@@ -91,27 +91,16 @@ using Coro = SCoro::SCoro
 
 int main()
 {
-    auto coroutine = std::make_shared<Coro>();
+    auto coroutine = Coro{};
     while (true)
     {
-        coroutine->Poll();
-
-        std::thread next_thread
+        while (coroutine.Poll())
         {
-            [](std::shared_ptr<Coro> coro)
-            {
-                while (coro->Poll())
-                {
-                    std::printf("-");
-                    std::this_thread::sleep_for(std::chrono::milliseconds{10});
-                }
-                std::printf("\n\n");
-                coro->Reset();
-            },
-            coroutine
-        };
-
-        next_thread.join();
+            std::printf("-");
+            std::this_thread::sleep_for(std::chrono::milliseconds{10});
+        }
+        std::printf("\n\n");
+        coroutine.Reset();
     }
     return 0;
 }
