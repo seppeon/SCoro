@@ -58,18 +58,18 @@ namespace SCoro
         };
 
         template <size_t index, typename Stgs>
-        static auto run_fn(Stgs & self) noexcept
+        static auto poll_fn(Stgs & self) noexcept
         {
-            return self.get_at(Index<index>{}).Run();
+            return self.get_at(Index<index>{}).Poll();
         }
 
         template <typename Stgs, size_t ... I>
         auto get_impl(Stgs & stack, std::index_sequence<I...>) noexcept
         {
-            using common_fn_t = std::common_type_t<decltype(run_fn<I, Stgs>)...>;
+            using common_fn_t = std::common_type_t<decltype(poll_fn<I, Stgs>)...>;
             static const common_fn_t lut[]
             {
-                run_fn<I, Stgs>...
+                poll_fn<I, Stgs>...
             };
             return lut[stack.index];
         }
