@@ -12,8 +12,8 @@ static time_point now() noexcept
     return system_clock::now();
 }
 
-template <typename T>
-struct Initial : T
+template <typename B>
+struct Initial : B
 {
     duration wait_time = std::chrono::seconds{1};
 
@@ -23,9 +23,10 @@ struct Initial : T
     }
 };
 
-template <typename T>
-struct RecordTime : T
+template <typename B>
+struct RecordTime : B
 {
+    using B::B;
     time_point start_time;
 
     bool Poll() noexcept
@@ -35,20 +36,22 @@ struct RecordTime : T
     }
 };
 
-template <typename T>
-struct WaitForExpiry : T
+template <typename B>
+struct WaitForExpiry : B
 {
+    using B::B;
     unsigned retries = 0;
     bool Poll() noexcept
     {
         ++retries;
-        return (now() - T::start_time) > T::wait_time;
+        return (now() - B::start_time) > B::wait_time;
     }
 };
 
 template <typename T>
 struct PrintPollAttempts : T
 {
+    using T::T;
 private:
     template <typename B>
     struct PrintPlus : B

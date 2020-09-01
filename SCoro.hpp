@@ -24,8 +24,9 @@ namespace SCoro
         template <size_t count, template <typename> class Arg>
         struct StagesImpl<count, Arg> : Arg<Nothing>
         {
-        private:
             using base = Arg<Nothing>;
+            using base::base;
+        private:
             static constexpr size_t index = 0;
         public:
             constexpr StagesImpl & get_at(Index<index>) noexcept { return *this; }
@@ -35,8 +36,9 @@ namespace SCoro
         template <size_t count, template <typename> class Arg, template <typename> class ... Args>
         struct StagesImpl<count, Arg, Args...> : Arg<StagesImpl<count, Args...>>
         {
-        private:
             using base = Arg<StagesImpl<count, Args...>>;
+            using base::base;
+        private:
             static constexpr size_t index = sizeof...(Args);
         public:
             using base::get_at;
