@@ -12,15 +12,14 @@ private:
         T current_value;
         T end_value;
 
-        Initial(T from, T to) noexcept :
+        Initial(T const & from, T const & to) noexcept :
             current_value{ from },
             end_value{ to }
         {}
 
         bool Poll() noexcept
         {
-            ++current_value;
-            return current_value > end_value;
+            return ++current_value > end_value;
         }
 
         T const & Value() const noexcept
