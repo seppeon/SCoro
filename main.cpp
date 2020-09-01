@@ -70,7 +70,7 @@ private:
         }
     };
 
-    using stack = SCoro::Stages<PrintPlus, PrintNewline>;
+    using stack = SCoro::SCoro<PrintPlus, PrintNewline>;
     stack nested_state;
 public:
     bool Run() noexcept
@@ -80,7 +80,7 @@ public:
     }
 };
 
-using Coro = SCoro::Stages
+using Coro = SCoro::SCoro
 <
     Initial,
     RecordTime,

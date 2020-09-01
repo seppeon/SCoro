@@ -80,9 +80,9 @@ namespace SCoro
     }
 
     template <template <typename> class ... Args>
-    struct Stages : Impl::ReverseStages<Stages<Args...>, Impl::ArgList<Args...>>::type
+    struct SCoro : Impl::ReverseStages<SCoro<Args...>, Impl::ArgList<Args...>>::type
     {
-        using base = typename Impl::ReverseStages<Stages<Args...>, Impl::ArgList<Args...>>::type;
+        using base = typename Impl::ReverseStages<SCoro<Args...>, Impl::ArgList<Args...>>::type;
         using base::base;
         using base::get_at;
         static constexpr size_t count = sizeof...(Args);
@@ -90,8 +90,8 @@ namespace SCoro
         mutable size_t index = 0;
         void Reset() noexcept
         {
-            this->~Stages(); 
-            new (this) Stages{};
+            this->~SCoro(); 
+            new (this) SCoro{};
         }
         bool Poll() noexcept
         {
