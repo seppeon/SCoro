@@ -67,18 +67,23 @@ namespace SCoro
             return self.get_at(Index<index>{}).Poll();
         }
 
+        template <typename Stgs, typename>
+        struct GetImpl;
         template <typename Stgs, size_t ... I>
-        constexpr auto get_impl(Stgs & stack, std::index_sequence<I...>) noexcept
+        struct GetImpl<Stgs, std::index_sequence<I...>>
         {
             using common_fn_t = std::common_type_t<decltype(poll_fn<I, Stgs>)...>;
-            constexpr common_fn_t lut[]{ poll_fn<I, Stgs>... };
-            return lut[stack.index];
-        }
+            static constexpr common_fn_t lut[]{ poll_fn<I, Stgs>... };
+            static constexpr auto get(Stgs & stack) noexcept
+            {
+                return lut[stack.index];
+            }
+        };
 
         template <typename Stgs>
         constexpr auto get(Stgs & stack) noexcept
         {
-            return get_impl(stack, std::make_index_sequence<Stgs::count>{});
+            return GetImpl<Stgs, std::make_index_sequence<Stgs::count>>::get(stack);
         }
     }
 
