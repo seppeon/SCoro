@@ -10,30 +10,30 @@ private:
     struct Initial : B
     {
         T current_value;
-        T yield_value;
+        T end_value;
 
-        Initial(T initial_value) noexcept :
-            current_value{ initial_value },
-            yield_value{ initial_value }
+        Initial(T from, T to) noexcept :
+            current_value{ from },
+            end_value{ to }
         {}
 
         bool Poll() noexcept
         {
-            yield_value = ++current_value;
-            return false;
+            ++current_value;
+            return current_value > end_value;
         }
 
         T const & Value() const noexcept
         {
-            return yield_value;
+            return current_value;
         }
     };
 
     using Coro = SCoro::SCoro<Initial>;
     Coro m_coro;
 public:
-    iota(T const & initial_value) noexcept :
-        m_coro{ initial_value }
+    iota(T const & from, T const & to) noexcept :
+        m_coro{ from, to }
     {}
 
     struct iterator
@@ -50,8 +50,8 @@ public:
             return m_coro.Value();
         }
 
-        bool operator==(const iterator& other) const { return false; }
-        bool operator!=(const iterator& other) const { return true; }
+        bool operator==(const iterator& other) const { return m_coro.Done(); }
+        bool operator!=(const iterator& other) const { return !operator==(other); }
 
         iterator& operator++()
         {
@@ -72,7 +72,7 @@ public:
 
 int main()
 {
-    iota<int> coro(0);
+    iota<int> coro(0, 10);
 
     for (auto v : coro)
         std::cout << v << "\n";

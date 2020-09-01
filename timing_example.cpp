@@ -79,7 +79,7 @@ public:
     bool Poll() noexcept
     {
         std::printf("\n");
-        return not nested_state.Poll();
+        return !nested_state.Poll();
     }
 };
 
