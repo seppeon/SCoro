@@ -1,6 +1,6 @@
 # SCoro
 
-A stackless, resumable, resettable coroutine library for C++17.
+A stackless, resumable, resettable state machine style coroutine library for C++17.
 This was made when I discovered that C++20 coroutines very frequently require heap allocation and their embodied types are erased. 
 
 This library allows:
