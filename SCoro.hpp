@@ -73,7 +73,7 @@ namespace SCoro
         struct GetImpl<Stgs, std::index_sequence<I...>>
         {
             using common_fn_t = std::common_type_t<decltype(poll_fn<I, Stgs>)...>;
-            static constexpr common_fn_t lut[]{ poll_fn<I, Stgs>... };
+            static constexpr common_fn_t lut[sizeof...(I)]{ poll_fn<I, Stgs>... };
             static constexpr auto get(Stgs & stack) noexcept
             {
                 return lut[stack.index];
