@@ -1,6 +1,7 @@
 #pragma once
 #include <type_traits>
 #include <utility>
+#include <memory>
 
 namespace SCoro
 {
@@ -86,7 +87,7 @@ struct Stages : ReverseStages<Stages<Args...>, ArgList<Args...>>::type
     mutable size_t index = 0;
     void Reset() noexcept
     {
-        std::destroy_at(this);
+        this->~Stages(); 
         new (this) Stages{};
     }
     bool Poll() noexcept
