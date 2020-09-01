@@ -76,7 +76,7 @@ namespace SCoro
             static constexpr common_fn_t lut[sizeof...(I)]{ poll_fn<I, Stgs>... };
             static constexpr auto get(Stgs & stack) noexcept
             {
-                return lut[stack.index];
+                return lut[stack.Index()];
             }
         };
 
@@ -87,15 +87,39 @@ namespace SCoro
         }
     }
 
+    template <size_t count>
+    struct EboIndex
+    {
+        mutable size_t index = 0;
+        constexpr size_t Index() const noexcept
+        {
+            return index;
+        }
+        constexpr void Inc() const noexcept
+        {
+            ++index;
+        }
+    };
+
+    template <>
+    struct EboIndex<1>
+    {
+        constexpr size_t Index() const noexcept
+        {
+            return 0;
+        }
+        constexpr void Inc() const noexcept{}
+    };
+
     template <template <typename> class ... Args>
-    struct SCoro : Impl::ReverseStages<SCoro<Args...>, Impl::ArgList<Args...>>::type
+    struct SCoro : Impl::ReverseStages<SCoro<Args...>, Impl::ArgList<Args...>>::type, EboIndex<sizeof...(Args)>
     {
         using base = typename Impl::ReverseStages<SCoro<Args...>, Impl::ArgList<Args...>>::type;
+        using index_t =  EboIndex<sizeof...(Args)>;
         using base::base;
         using base::get_at;
         static constexpr size_t count = sizeof...(Args);
 
-        mutable size_t index = 0;
         constexpr void Reset() noexcept
         {
             this->~SCoro(); 
@@ -103,12 +127,12 @@ namespace SCoro
         }
         constexpr bool Done() const noexcept
         {
-            return index == count;
+            return index_t::Index() == count;
         }
         constexpr bool Poll() noexcept
         {
-            if (Impl::get(*this)(*this)) ++index;
-            return index < count;
+            if (Impl::get(*this)(*this)) index_t::Inc();
+            return index_t::Index() < count;
         }
     };
 }

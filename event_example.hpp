@@ -5,7 +5,6 @@
 
 
 
-
 int main()
 {
     std::thread keyboard_input
