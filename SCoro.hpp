@@ -125,10 +125,12 @@ namespace SCoro
             this->~SCoro(); 
             new (this) SCoro{};
         }
+
         constexpr bool Done() const noexcept
         {
             return index_t::Index() == count;
         }
+        
         constexpr bool Poll() noexcept
         {
             if (Impl::get(*this)(*this)) index_t::Inc();
