@@ -12,7 +12,7 @@ template <typename B>
 struct Start : B
 {
     using B::B;
-    bool Poll() noexcept
+    static bool Poll() noexcept
     {
         std::puts("Waiting for event.");
         return true;
@@ -22,7 +22,7 @@ template <typename B>
 struct Event : B
 {
     using B::B;
-    bool Poll() noexcept
+    static bool Poll() noexcept
     {
         std::puts("Found event!");
         return true;
