@@ -67,9 +67,11 @@ namespace SCoro
         auto get_impl(Stgs & stack, std::index_sequence<I...>) noexcept
         {
             using common_fn_t = std::common_type_t<decltype(run_fn<I, Stgs>)...>;
-            common_fn_t fn = nullptr;
-            (((I == stack.index) and (fn = run_fn<I, Stgs>)) or ...);
-            return fn;
+            static const common_fn_t lut[]
+            {
+                run_fn<I, Stgs>...
+            };
+            return lut[stack.index];
         }
 
         template <typename Stgs>
