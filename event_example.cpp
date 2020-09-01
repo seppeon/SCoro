@@ -33,8 +33,6 @@ int main()
 {
     auto coro = std::make_unique<SCoro::SCoro<Start, Event>>();
     coro->Poll();
-
-
     // simulate async event
     // This could be finished by an interrupt or scheduler, timer, IOCP etc...
     std::thread thread
