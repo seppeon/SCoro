@@ -25,10 +25,21 @@ struct Event : B
         return true;
     }
 };
+template <typename B>
+struct SubmitValue : B
+{
+    using B::B;
+    static bool Poll() noexcept
+    {
+        return true;
+    }
+    int Value() const noexcept
+    {
+        return 123;
+    }
+};
 
-using scoro = SCoro::SCoro<Start, Event>;
-
-
+using scoro = SCoro::SCoro<Start, Event, SubmitValue>;
 
 struct SCoroTask
 {
@@ -39,11 +50,23 @@ struct SCoroTask
     {
         SCoroTask get_return_object() noexcept{return { promise_handle::from_promise(*this) };}
         void yield_value(std::nullptr_t){}
-        void return_void() noexcept {}
+
+        int v = 0;
+        void return_value(int value) noexcept { v = value; }
         void unhandled_exception() noexcept {}
-        auto initial_suspend() noexcept -> std::experimental::suspend_always{return {};}
-        auto final_suspend() noexcept -> std::experimental::suspend_always{return {};}
+        auto initial_suspend() noexcept -> std::experimental::suspend_never{return {};}
+        auto final_suspend() noexcept -> std::experimental::suspend_always
+        {
+            return {};
+        }
     };
+
+    bool await_ready() { return true; }
+    void await_suspend(default_handle) {}
+    int await_resume()
+    {
+        return handle.promise().v;
+    }
 
     promise_handle handle;
 };
@@ -52,11 +75,18 @@ SCoroTask SCoroRunner()
 {
     scoro manager;
     while(manager.Poll()) co_yield nullptr;
+    co_return manager.Value();
+}
+
+SCoroTask Runny()
+{
+    auto r = co_await SCoroRunner();
+    co_return 1;
 }
 
 int main()
 {
-    auto scoro_runner = SCoroRunner();
+    auto scoro_runner = Runny();
     while(!scoro_runner.handle.done())
     {  
         scoro_runner.handle.resume();

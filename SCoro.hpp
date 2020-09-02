@@ -18,29 +18,33 @@ namespace SCoro
         template <template <typename> class ... Args>
         struct ArgList{};
 
-        template <size_t count, template <typename> class ...>
+        template <typename Base, size_t count, template <typename> class ...>
         struct StagesImpl;
 
-        template <size_t count, template <typename> class Arg>
-        struct StagesImpl<count, Arg> : Arg<Nothing>
+        template <typename Base, size_t count, template <typename> class Arg>
+        struct StagesImpl<Base, count, Arg> : Arg<Nothing>
         {
             using base = Arg<Nothing>;
             using base::base;
         private:
             static constexpr size_t index = 0;
         public:
+            constexpr Base const & Self() const noexcept { return static_cast<Base&>(*this); }
+            constexpr Base & Self() noexcept { return static_cast<Base&>(*this); }
+
             constexpr StagesImpl & get_at(Index<index>) noexcept { return *this; }
             constexpr StagesImpl const & get_at(Index<index>) const noexcept { return *this; }
         };
 
-        template <size_t count, template <typename> class Arg, template <typename> class ... Args>
-        struct StagesImpl<count, Arg, Args...> : Arg<StagesImpl<count, Args...>>
+        template <typename Base, size_t count, template <typename> class Arg, template <typename> class ... Args>
+        struct StagesImpl<Base, count, Arg, Args...> : Arg<StagesImpl<Base, count, Args...>>
         {
-            using base = Arg<StagesImpl<count, Args...>>;
+            using base = Arg<StagesImpl<Base, count, Args...>>;
             using base::base;
         private:
             static constexpr size_t index = sizeof...(Args);
         public:
+            using base::Self;
             using base::get_at;
             constexpr StagesImpl & get_at(Index<index>) noexcept { return *this; }
             constexpr StagesImpl const & get_at(Index<index>) const noexcept { return *this; }
@@ -52,7 +56,7 @@ namespace SCoro
         template <typename Base, template <typename> class ... Args>
         struct ReverseStages<Base, ArgList<>, ArgList<Args...>>
         {
-            using type = StagesImpl<sizeof...(Args), Args...>;
+            using type = StagesImpl<Base, sizeof...(Args), Args...>;
         };
 
         template <typename Base, template <typename> class T, template <typename> class ... Ts, template <typename> class  ... Args>
@@ -135,8 +139,12 @@ namespace SCoro
         
         constexpr bool Poll() noexcept
         {
-            if (Impl::get(*this)(*this)) index_t::Inc();
-            return index_t::Index() < count;
+            if (Impl::get(*this)(*this))
+            {
+                index_t::Inc();
+                return index_t::Index() < count;
+            }
+            return true;
         }
     };
 }
