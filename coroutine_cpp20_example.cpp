@@ -37,25 +37,12 @@ struct SCoroTask
 
     struct promise_type
     {
-        SCoroTask get_return_object() noexcept
-        {
-            return { promise_handle::from_promise(*this) };
-        }
-
+        SCoroTask get_return_object() noexcept{return { promise_handle::from_promise(*this) };}
         void yield_value(std::nullptr_t){}
         void return_void() noexcept {}
-
         void unhandled_exception() noexcept {}
-
-        auto initial_suspend() noexcept -> std::experimental::suspend_always
-        {
-            return {};
-        }
-
-        auto final_suspend() noexcept -> std::experimental::suspend_always
-        {
-            return {};
-        }
+        auto initial_suspend() noexcept -> std::experimental::suspend_always{return {};}
+        auto final_suspend() noexcept -> std::experimental::suspend_always{return {};}
     };
 
     promise_handle handle;
