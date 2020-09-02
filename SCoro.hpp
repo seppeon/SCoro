@@ -150,28 +150,7 @@ namespace SCoro
         default:
             return Result::End;
         }
-    } 
-
-    template <typename B, size_t offset>
-    struct Nexter : B
-    {
-        using B::B;
-        using B::Done;
-        using B::Poll;
-        using B::count;
-        using B::Inc;
-
-        constexpr size_t Index() const noexcept { return B::Index() + offset; }
-        
-        constexpr auto & Next() noexcept
-        {
-            return static_cast<Nexter<B, offset + 1> &>(*this);
-        }
-        constexpr auto Poll() noexcept
-        {
-            return ::SCoro::Poll(*this);
-        }
-    };
+    }
 
     template <template <typename> class ... Args>
     struct SCoro : Checker<Args...>, Impl::ReverseStages<SCoro<Args...>, Impl::ArgList<Args...>>::type, EboIndex<sizeof...(Args)>
@@ -195,11 +174,6 @@ namespace SCoro
         constexpr bool Done() const noexcept
         {
             return index_t::Index() >= count;
-        }
-
-        constexpr auto & Next() noexcept
-        {
-            return static_cast<Nexter<SCoro, 1> &>(*this);
         }
         constexpr auto Poll() noexcept
         {
