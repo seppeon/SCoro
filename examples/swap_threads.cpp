@@ -27,7 +27,7 @@ struct SwapThread : T
         {
             [&]()
             {
-                Self().Inc();
+                Self().Next();
                 slow_poll(Self());
             }
         };

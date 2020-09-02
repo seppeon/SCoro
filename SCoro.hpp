@@ -127,7 +127,7 @@ namespace SCoro
     {
         mutable size_t index = 0;
         constexpr size_t Index() const noexcept { return index; }
-        constexpr size_t Inc() const noexcept { return ++index; }
+        constexpr size_t Next() const noexcept { return ++index; }
     };
 
     template <template <typename> class ... Args>
@@ -144,7 +144,7 @@ namespace SCoro
         switch (Impl::get(obj)(obj).value)
         {
         case Result::Next:
-            return obj.Inc() < obj.count ? Result::Next : Result::End;
+            return obj.Next() < obj.count ? Result::Next : Result::End;
         case Result::Yield:
             return Result::Yield;    
         default:
