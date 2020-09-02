@@ -91,23 +91,14 @@ namespace SCoro
     struct EboIndex
     {
         mutable size_t index = 0;
-        constexpr size_t Index() const noexcept
-        {
-            return index;
-        }
-        constexpr void Inc() const noexcept
-        {
-            ++index;
-        }
+        constexpr size_t Index() const noexcept { return index; }
+        constexpr void Inc() const noexcept { ++index; }
     };
 
     template <>
     struct EboIndex<1>
     {
-        constexpr size_t Index() const noexcept
-        {
-            return 0;
-        }
+        constexpr size_t Index() const noexcept { return 0; }
         constexpr void Inc() const noexcept{}
     };
 
