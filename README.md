@@ -18,7 +18,6 @@ And:
 * It allows heap or stack saving of the state, making it easy to use locally or passed to a scheduler or thread.
 * Its lightweight and can be evaluated in constexpr context.
 * Trivially composable (I sometimes find this isn't the case for c++20 coroutines).
-* This library makes it easier to use C++20 coroutines (does for me anyway)., simply use this library within your coroutines and construct a facade for C++20 coroutines. This way, the nesting of co_await is no longer an issue and polling for ready is also no longer an issue. std::noop_coroutine is no longer needed and from the user perspective the coroutine syntax can still be used.
 
 Any feedback is welcome, I have a long todo here. I'm looking at improving the actual standard C++ coroutines eventually with a similar approach. If anybody sees advantages and disadvantages of my approach I'd love to hear about them!
 
