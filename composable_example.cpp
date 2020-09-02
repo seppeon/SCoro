@@ -112,7 +112,6 @@ struct PrintTag : T
     }
 };
 
-
 using Coro = SCoro::SCoro
 <
     Initial,
@@ -124,7 +123,7 @@ using Coro = SCoro::SCoro
 
 int main()
 {
-    auto coroutine = Coro{};
+    Coro coroutine;
     while (true)
     {
         while (coroutine.Poll())
