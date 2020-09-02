@@ -120,10 +120,11 @@ namespace SCoro
         using base::get_at;
         static constexpr size_t count = sizeof...(Args);
 
-        constexpr void Reset() noexcept
+        template <typename ... Ags>
+        constexpr void Reset(Ags && ... args) noexcept
         {
             this->~SCoro(); 
-            new (this) SCoro{};
+            new (this) SCoro{std::forward<Ags>(args)...};
         }
 
         constexpr bool Done() const noexcept

@@ -89,20 +89,37 @@ public:
     }
 };
 
+
+template <typename T>
+struct PrintStart : T
+{
+    const char * input;
+    PrintStart(const char * str) : input{str}{}
+
+    bool Poll() noexcept
+    {
+        std::puts(input);
+        return true;
+    }
+};
+
 template <typename T>
 struct PrintTag : T
 {
     using T::T;
 
-    static bool Poll() noexcept
+    bool Poll() noexcept
     {
-        std::putchar('#');
+        std::putchar('~');
+        std::putchar('\n');
+        std::puts(T::input);
         return true;
     }
 };
 
 using Coro = SCoro::SCoro
 <
+    PrintStart,
     Delay<100>::type,
     PrintPollAttempts,
     Delay<100>::type,
@@ -111,16 +128,18 @@ using Coro = SCoro::SCoro
 
 int main()
 {
-    Coro coroutine;
+    Coro coroutine{"composable"};
     while (true)
     {
-        while (coroutine.Poll())
+        while ( coroutine.Poll() )
         {
             std::putchar('-');
             std::this_thread::sleep_for(std::chrono::milliseconds{10});
         }
         std::printf("\n\n");
-        coroutine.Reset();
+
+        // This resets coroutine state.
+        coroutine.Reset("composable");
     }
     return 0;
 }
