@@ -110,8 +110,8 @@ struct PrintTag : T
 
     bool Poll() noexcept
     {
-        std::putchar('~');
         std::putchar('\n');
+        std::putchar('~');
         std::puts(T::input);
         return true;
     }
@@ -136,10 +136,10 @@ int main()
             std::putchar('-');
             std::this_thread::sleep_for(std::chrono::milliseconds{10});
         }
-        std::printf("\n\n");
-
         // This resets coroutine state.
         coroutine.Reset("composable");
+        std::printf("\n\n");
+
     }
     return 0;
 }
