@@ -4,10 +4,6 @@
 #include <string>
 #include <iostream>
 
-void event()
-{
-
-}
 template <typename B>
 struct Start : B
 {
