@@ -1,8 +1,5 @@
 #include "SCoro.hpp"
 #include <thread>
-#include <chrono>
-#include <optional>
-#include <mutex>
 #include <iostream>
 
 template <typename T>
