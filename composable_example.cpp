@@ -12,17 +12,6 @@ static time_point now() noexcept
     return system_clock::now();
 }
 
-template <typename B>
-struct Initial : B
-{
-    duration wait_time = std::chrono::seconds{1};
-
-    bool Poll() const noexcept
-    {
-        return true;
-    }
-};
-
 template <unsigned ms>
 struct Delay
 {
@@ -114,7 +103,6 @@ struct PrintTag : T
 
 using Coro = SCoro::SCoro
 <
-    Initial,
     Delay<100>::type,
     PrintPollAttempts,
     Delay<100>::type,
