@@ -99,23 +99,26 @@ namespace SCoro
     struct EboIndex<1>
     {
         constexpr size_t Index() const noexcept { return 0; }
-        constexpr void Inc() const noexcept{}
+        constexpr void Inc() const noexcept {}
     };
 
     template <template <typename> class ... Args>
     struct Checker
     {
-        static constexpr bool all_have_base = (std::is_base_of_v<Impl::Nothing, Args<Impl::Nothing>> and ...);
-        static_assert( all_have_base, R"(All classes passed into SCoro must have a single template parameter which is inherited from: 'template <typename B> struct Foo : B { using B::B; ... };' )");
+        static constexpr bool all_have_base = (std::is_base_of_v<Impl::Nothing, Args<Impl::Nothing>> && ...);
+        static_assert( all_have_base, R"(All classes passed into SCoro must have a single template parameter which is inherited from: 'template <typename B> struct Foo : B { using B::B; ... };')");
     };
 
     template <template <typename> class ... Args>
     struct SCoro : Checker<Args...>, Impl::ReverseStages<SCoro<Args...>, Impl::ArgList<Args...>>::type, EboIndex<sizeof...(Args)>
     {
+        using checker = Checker<Args...>;
         using base = typename Impl::ReverseStages<SCoro<Args...>, Impl::ArgList<Args...>>::type;
         using index_t =  EboIndex<sizeof...(Args)>;
         using base::base;
         using base::get_at;
+        using checker::all_have_base;
+
         static constexpr size_t count = sizeof...(Args);
 
         template <typename ... Ags>

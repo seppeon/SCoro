@@ -4,30 +4,34 @@
 #include <string>
 #include <iostream>
 
-template <typename B>
-struct Start : B
+struct PauseResume
 {
-    using B::B;
-    static bool Poll() noexcept
+    template <typename B>
+    struct Start : B
     {
-        std::puts("Waiting for event.");
-        return true;
-    }
-};
-template <typename B>
-struct Event : B
-{
-    using B::B;
-    static bool Poll() noexcept
+        using B::B;
+        static bool Poll() noexcept
+        {
+            std::puts("Waiting for event.");
+            return true;
+        }
+    };
+    template <typename B>
+    struct Event : B
     {
-        std::puts("Found event!");
-        return true;
-    }
+        using B::B;
+        static bool Poll() noexcept
+        {
+            std::puts("Found event!");
+            return true;
+        }
+    };
+    using scoro = SCoro::SCoro<Start, Event>;
 };
 
 int main()
 {
-    auto coro = std::make_unique<SCoro::SCoro<Start, Event>>();
+    auto coro = std::make_unique<PauseResume::scoro>();
     coro->Poll();
     // simulate async event
     // This could be finished by an interrupt or scheduler, timer, IOCP etc...

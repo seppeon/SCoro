@@ -49,7 +49,7 @@ struct Delay
     public:
         bool Poll() noexcept
         {
-            return not nested_state.Poll();
+            return !nested_state.Poll();
         }
     };
 };
