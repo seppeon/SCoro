@@ -7,8 +7,8 @@ This does not use C++20 coroutines. It is a managed state machine style coroutin
 
 Why, because C++20 coroutines:
 
-* are extremely difficult to develop with.
-* make nested co_await very clumbsy and have large memory overhead to do it right.
+* are difficult to develop with.
+* make nested co_await clumbsy and have large memory overhead to do it right.
 * HALO optimization seems to regularly fail.
 * require heap allocation to be avaliable in the general case, making them unusable on many systems.
 
