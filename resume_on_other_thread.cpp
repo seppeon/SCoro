@@ -2,6 +2,7 @@
 #include <thread>
 #include <chrono>
 #include <optional>
+#include <mutex>
 #include <iostream>
 
 template <typename T>
@@ -14,30 +15,19 @@ struct PrintThreadId : T
     }
 };
 
-template <typename T>
-struct ResumeOnNewThread : T
-{
-    bool Poll() noexcept
-    {
-        std::thread 
-        (
-            [&]()
-            {
-                Self().Inc();
-                if (!Self().Done()) Self().Poll();
-            }
-        ).join();
-        return false;
-    }
-};
-
 
 int main()
 {
-    using scoro = SCoro::SCoro<PrintThreadId, ResumeOnNewThread, PrintThreadId, ResumeOnNewThread, PrintThreadId>;
-
+    using scoro = SCoro::SCoro<PrintThreadId, PrintThreadId>;
     scoro coro;
     coro.Poll();
-    coro.Poll();
+    std::thread resumer
+    {
+        [&]()
+        {
+            while(coro.Poll());
+        }
+    };
+    resumer.join();
     return 0;
 }
