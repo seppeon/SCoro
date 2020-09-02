@@ -112,7 +112,14 @@ namespace SCoro
     };
 
     template <template <typename> class ... Args>
-    struct SCoro : Impl::ReverseStages<SCoro<Args...>, Impl::ArgList<Args...>>::type, EboIndex<sizeof...(Args)>
+    struct Checker
+    {
+        static constexpr bool all_have_base = (std::is_base_of_v<Impl::Nothing, Args<Impl::Nothing>> and ...);
+        static_assert( all_have_base, R"(All classes passed into SCoro must have a single template parameter which is inherited from: 'template <typename B> struct Foo : B { using B::B; ... };' )");
+    };
+
+    template <template <typename> class ... Args>
+    struct SCoro : Checker<Args...>, Impl::ReverseStages<SCoro<Args...>, Impl::ArgList<Args...>>::type, EboIndex<sizeof...(Args)>
     {
         using base = typename Impl::ReverseStages<SCoro<Args...>, Impl::ArgList<Args...>>::type;
         using index_t =  EboIndex<sizeof...(Args)>;

@@ -138,7 +138,6 @@ int main()
         // This resets coroutine state.
         coroutine.Reset("composable");
         std::printf("\n\n\n\n");
-
     }
     return 0;
 }
