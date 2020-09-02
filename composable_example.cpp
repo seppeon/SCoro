@@ -75,7 +75,7 @@ private:
     {
         static bool Poll() noexcept
         {
-            std::printf("/");
+            std::putchar('/');
             return true;
         }
     };
@@ -85,7 +85,7 @@ private:
     {
         static bool Poll() noexcept
         {
-            std::printf("\\");
+            std::putchar('\\');
             return true;
         }
     };
@@ -95,7 +95,7 @@ private:
 public:
     bool Poll() noexcept
     {
-        std::printf("\n");
+        std::putchar('\n');
         return !nested_state.Poll();
     }
 };
@@ -107,7 +107,7 @@ struct PrintTag : T
 
     static bool Poll() noexcept
     {
-        std::puts("complete");
+        std::putchar('#');
         return true;
     }
 };
@@ -116,9 +116,9 @@ struct PrintTag : T
 using Coro = SCoro::SCoro
 <
     Initial,
-    Delay<1000>::type,
+    Delay<100>::type,
     PrintPollAttempts,
-    Delay<1000>::type,
+    Delay<100>::type,
     PrintTag
 >;
 
@@ -129,7 +129,7 @@ int main()
     {
         while (coroutine.Poll())
         {
-            std::printf("-");
+            std::putchar('-');
             std::this_thread::sleep_for(std::chrono::milliseconds{10});
         }
         std::printf("\n\n");
