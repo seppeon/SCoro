@@ -127,14 +127,7 @@ namespace SCoro
     {
         mutable size_t index = 0;
         constexpr size_t Index() const noexcept { return index; }
-        constexpr void Inc() const noexcept { ++index; }
-    };
-
-    template <>
-    struct EboIndex<1>
-    {
-        constexpr size_t Index() const noexcept { return 0; }
-        constexpr void Inc() const noexcept {}
+        constexpr size_t Inc() const noexcept { return ++index; }
     };
 
     template <template <typename> class ... Args>
@@ -151,8 +144,7 @@ namespace SCoro
         switch (Impl::get(obj)(obj).value)
         {
         case Result::Next:
-            obj.Inc();
-            return obj.Index() < obj.count ? Result::Next : Result::End;
+            return obj.Inc() < obj.count ? Result::Next : Result::End;
         case Result::Yield:
             return Result::Yield;    
         default:
@@ -167,9 +159,9 @@ namespace SCoro
         using B::Done;
         using B::Poll;
         using B::count;
+        using B::Inc;
 
         constexpr size_t Index() const noexcept { return B::Index() + offset; }
-        constexpr void Inc() const noexcept { return B::Inc(); }
         
         constexpr auto & Next() noexcept
         {
@@ -202,7 +194,7 @@ namespace SCoro
 
         constexpr bool Done() const noexcept
         {
-            return index_t::Index() == count;
+            return index_t::Index() >= count;
         }
 
         constexpr auto & Next() noexcept

@@ -12,7 +12,7 @@ struct Start : B
     static SCoro::Result Poll() noexcept
     {
         std::puts("Waiting for event.");
-        return 0 != GetKeyState(0x41);
+        return (0 != GetKeyState(0x41));
     }
 };
 template <typename B>
@@ -78,15 +78,9 @@ SCoroTask SCoroRunner()
     co_return manager.Value();
 }
 
-SCoroTask Runny()
-{
-    auto r = co_await SCoroRunner();
-    co_return 1;
-}
-
 int main()
 {
-    auto scoro_runner = Runny();
+    auto scoro_runner = SCoroRunner();
     while(!scoro_runner.handle.done())
     {  
         scoro_runner.handle.resume();

@@ -19,7 +19,7 @@ private:
 
         SCoro::Result Poll() noexcept
         {
-            return ++current_value > end_value;
+            return ++current_value > end_value ? SCoro::Result::Next : SCoro::Result::Yield;
         }
 
         T const & Value() const noexcept
