@@ -3,28 +3,45 @@
 #include <iostream>
 
 template <typename T>
+void slow_poll(T & obj)
+{
+    while(obj.Poll());
+}
+
+template <typename T>
 struct PrintThreadId : T
 {
-    bool Poll() const noexcept
+    SCoro::Result Poll() const noexcept
     {
         std::cout << "thread id = " << std::this_thread::get_id() << "\n";
         return true;
     }
 };
 
+template <typename T>
+struct SwapThread : T
+{
+    SCoro::Result Poll() noexcept
+    {
+        std::thread resumer
+        {
+            [&]()
+            {
+                slow_poll(Self().Next());
+                Self().Inc();
+            }
+        };
+        resumer.detach();
+        return SCoro::Result::End;
+    }
+};
 
 int main()
 {
-    using scoro = SCoro::SCoro<PrintThreadId, PrintThreadId>;
+    using scoro = SCoro::SCoro<PrintThreadId, SwapThread, PrintThreadId, SwapThread, PrintThreadId, SwapThread, PrintThreadId>;
     scoro coro;
-    coro.Poll();
-    std::thread resumer
-    {
-        [&]()
-        {
-            while(coro.Poll());
-        }
-    };
-    resumer.join();
+    slow_poll(coro);
+
+    while(!coro.Done());
     return 0;
 }

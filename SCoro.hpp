@@ -5,6 +5,37 @@
 
 namespace SCoro
 {
+    struct Result
+    {
+        enum
+        {
+            End,
+            Yield,
+            Next,
+        }
+        value;
+        constexpr Result(decltype(value) input) noexcept :
+            value{ input }
+        {}
+        constexpr Result(bool input) noexcept :
+            value{ input ? Next : Yield }
+        {}
+
+        constexpr bool operator == (decltype(value) rhs) const noexcept
+        {
+            return value == rhs;
+        }
+        constexpr bool operator !=(decltype(value) rhs) const noexcept
+        {
+            return !operator==(rhs);
+        }
+
+        constexpr operator bool() const noexcept
+        {
+            return value != End;
+        }
+    };
+
     namespace Impl
     {
         struct Nothing{};
@@ -66,7 +97,7 @@ namespace SCoro
         };
 
         template <size_t index, typename Stgs>
-        constexpr static auto poll_fn(Stgs & self) noexcept
+        constexpr static Result poll_fn(Stgs & self) noexcept
         {
             return self.get_at(Index<index>{}).Poll();
         }
@@ -113,6 +144,43 @@ namespace SCoro
         static_assert( all_have_base, R"(All classes passed into SCoro must have a single template parameter which is inherited from: 'template <typename B> struct Foo : B { using B::B; ... };')");
     };
 
+
+    template <typename Obj>
+    constexpr auto Poll(Obj & obj) noexcept
+    {
+        switch (Impl::get(obj)(obj).value)
+        {
+        case Result::Next:
+            obj.Inc();
+            return obj.Index() < obj.count ? Result::Next : Result::End;
+        case Result::Yield:
+            return Result::Yield;    
+        default:
+            return Result::End;
+        }
+    } 
+
+    template <typename B, size_t offset>
+    struct Nexter : B
+    {
+        using B::B;
+        using B::Done;
+        using B::Poll;
+        using B::count;
+
+        constexpr size_t Index() const noexcept { return B::Index() + offset; }
+        constexpr void Inc() const noexcept { return B::Inc(); }
+        
+        constexpr auto & Next() noexcept
+        {
+            return static_cast<Nexter<B, offset + 1> &>(*this);
+        }
+        constexpr auto Poll() noexcept
+        {
+            return ::SCoro::Poll(*this);
+        }
+    };
+
     template <template <typename> class ... Args>
     struct SCoro : Checker<Args...>, Impl::ReverseStages<SCoro<Args...>, Impl::ArgList<Args...>>::type, EboIndex<sizeof...(Args)>
     {
@@ -136,15 +204,14 @@ namespace SCoro
         {
             return index_t::Index() == count;
         }
-        
-        constexpr bool Poll() noexcept
+
+        constexpr auto & Next() noexcept
         {
-            if (Impl::get(*this)(*this))
-            {
-                index_t::Inc();
-                return index_t::Index() < count;
-            }
-            return true;
+            return static_cast<Nexter<SCoro, 1> &>(*this);
+        }
+        constexpr auto Poll() noexcept
+        {
+            return ::SCoro::Poll(*this);
         }
     };
 }

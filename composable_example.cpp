@@ -26,7 +26,7 @@ struct Delay
             using B::B;
 
             time_point start_time;
-            bool Poll() noexcept
+            SCoro::Result Poll() noexcept
             {
                 start_time = now();
                 return true;
@@ -38,7 +38,7 @@ struct Delay
         {
             using B::B;
 
-            bool Poll() noexcept
+            SCoro::Result Poll() noexcept
             {
                 return (now() - B::start_time) > std::chrono::milliseconds{ms};
             }
@@ -47,9 +47,9 @@ struct Delay
         using states = SCoro::SCoro<RecordTime, WaitForExpiry>;
         states nested_state;
     public:
-        bool Poll() noexcept
+        SCoro::Result Poll() noexcept
         {
-            return !nested_state.Poll();
+            return nested_state.Poll();
         }
     };
 };
@@ -62,7 +62,7 @@ private:
     template <typename B>
     struct PrintPlus : B
     {
-        static bool Poll() noexcept
+        static SCoro::Result Poll() noexcept
         {
             std::putchar('/');
             return true;
@@ -72,7 +72,7 @@ private:
     template <typename B>
     struct PrintNewline : B
     {
-        static bool Poll() noexcept
+        static SCoro::Result Poll() noexcept
         {
             std::putchar('\\');
             return true;
@@ -82,7 +82,7 @@ private:
     using states = SCoro::SCoro<PrintPlus, PrintNewline>;
     states nested_state;
 public:
-    bool Poll() noexcept
+    SCoro::Result Poll() noexcept
     {
         std::putchar('\n');
         return !nested_state.Poll();
@@ -95,7 +95,7 @@ struct PrintStart : T
     const char * input;
     PrintStart(const char * str) : input{str}{}
 
-    bool Poll() noexcept
+    SCoro::Result Poll() noexcept
     {
         std::puts(input);
         return true;
@@ -107,7 +107,7 @@ struct PrintTag : T
 {
     using T::T;
 
-    bool Poll() noexcept
+    SCoro::Result Poll() noexcept
     {
         std::putchar('\n');
         std::putchar('~');
@@ -130,14 +130,14 @@ int main()
     Coro coroutine{"composable"};
     while (true)
     {
-        while ( coroutine.Poll() )
+        while ( coroutine.Poll() != SCoro::Result::End )
         {
             std::putchar('-');
             std::this_thread::sleep_for(std::chrono::milliseconds{10});
         }
         // This resets coroutine state.
         coroutine.Reset("composable");
-        std::printf("\n\n\n\n");
+        std::printf("\n");
     }
     return 0;
 }

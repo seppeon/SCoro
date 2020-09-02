@@ -9,7 +9,7 @@ template <typename B>
 struct Start : B
 {
     using B::B;
-    static bool Poll() noexcept
+    static SCoro::Result Poll() noexcept
     {
         std::puts("Waiting for event.");
         return 0 != GetKeyState(0x41);
@@ -19,7 +19,7 @@ template <typename B>
 struct Event : B
 {
     using B::B;
-    static bool Poll() noexcept
+    static SCoro::Result Poll() noexcept
     {
         std::puts("Found event!");
         return true;
@@ -29,7 +29,7 @@ template <typename B>
 struct SubmitValue : B
 {
     using B::B;
-    static bool Poll() noexcept
+    static SCoro::Result Poll() noexcept
     {
         return true;
     }

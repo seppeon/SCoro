@@ -17,7 +17,7 @@ private:
             end_value{ to }
         {}
 
-        bool Poll() noexcept
+        SCoro::Result Poll() noexcept
         {
             return ++current_value > end_value;
         }

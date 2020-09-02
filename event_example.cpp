@@ -10,7 +10,7 @@ struct PauseResume
     struct Start : B
     {
         using B::B;
-        static bool Poll() noexcept
+        static SCoro::Result Poll() noexcept
         {
             std::puts("Waiting for event.");
             return true;
@@ -20,7 +20,7 @@ struct PauseResume
     struct Event : B
     {
         using B::B;
-        static bool Poll() noexcept
+        static SCoro::Result Poll() noexcept
         {
             std::puts("Found event!");
             return true;

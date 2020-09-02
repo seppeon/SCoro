@@ -17,7 +17,7 @@ struct Initial : B
 {
     duration wait_time = std::chrono::seconds{1};
 
-    bool Poll() const noexcept
+    SCoro::Result Poll() const noexcept
     {
         return true;
     }
@@ -29,7 +29,7 @@ struct RecordTime : B
     using B::B;
     time_point start_time;
 
-    bool Poll() noexcept
+    SCoro::Result Poll() noexcept
     {
         start_time = now();
         return true;
@@ -41,7 +41,7 @@ struct WaitForExpiry : B
 {
     using B::B;
     unsigned retries = 0;
-    bool Poll() noexcept
+    SCoro::Result Poll() noexcept
     {
         ++retries;
         return (now() - B::start_time) > B::wait_time;
@@ -56,7 +56,7 @@ private:
     template <typename B>
     struct PrintPlus : B
     {
-        static bool Poll() noexcept
+        static SCoro::Result Poll() noexcept
         {
             std::printf("/");
             return true;
@@ -66,7 +66,7 @@ private:
     template <typename B>
     struct PrintNewline : B
     {
-        static bool Poll() noexcept
+        static SCoro::Result Poll() noexcept
         {
             std::printf("\\");
             return true;
@@ -76,7 +76,7 @@ private:
     using states = SCoro::SCoro<PrintPlus, PrintNewline>;
     states nested_state;
 public:
-    bool Poll() noexcept
+    SCoro::Result Poll() noexcept
     {
         std::printf("\n");
         return !nested_state.Poll();
