@@ -89,7 +89,6 @@ public:
     }
 };
 
-
 template <typename T>
 struct PrintStart : T
 {
