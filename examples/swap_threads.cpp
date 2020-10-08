@@ -27,8 +27,8 @@ struct SwapThread : T
         {
             [&]()
             {
-                Self().Next();
-                slow_poll(Self());
+                this->Self().Next();
+                slow_poll(this->Self());
             }
         };
         resumer.detach();
