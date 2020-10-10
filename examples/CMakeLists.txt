@@ -28,4 +28,4 @@ if(CMAKE_SYSTEM_NAME STREQUAL Windows)
   set(PLATFORM_HEADER "Windows.h")
 endif()
 
-configure_file(platform.h.in platform.h @ONLY)
+configure_file(platform_config.h.in platform_config.h @ONLY)
