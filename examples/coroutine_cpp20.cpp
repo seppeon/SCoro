@@ -1,9 +1,15 @@
 #include "SCoro.hpp"
-#include <experimental/coroutine>
+#include <coroutine>
 #include <iostream>
-#include <Windows.h>
+#include <random>
+#include <string>
+#include <sleep.h>
 
-using default_handle = std::experimental::coroutine_handle<>;
+using default_handle = std::coroutine_handle<>;
+
+std::random_device dev;
+std::mt19937 rng(dev());
+std::uniform_int_distribution<std::mt19937::result_type> dist(1,10);
 
 template <typename B>
 struct Start : B
@@ -12,7 +18,8 @@ struct Start : B
     static SCoro::Result Poll() noexcept
     {
         std::puts("Waiting for event.");
-        return (0 != GetKeyState(0x41));
+        // RNG serving up a particular number is the async event we are waiting on
+        return (dist(rng) == 7);
     }
 };
 template <typename B>
@@ -44,18 +51,18 @@ using scoro = SCoro::SCoro<Start, Event, SubmitValue>;
 struct SCoroTask
 {
     struct promise_type;
-    using promise_handle = std::experimental::coroutine_handle<promise_type>;
+    using promise_handle = std::coroutine_handle<promise_type>;
 
     struct promise_type
     {
         SCoroTask get_return_object() noexcept{return { promise_handle::from_promise(*this) };}
-        void yield_value(std::nullptr_t){}
+        SCoroTask yield_value(std::nullptr_t){return { promise_handle::from_promise(*this) };}
 
         int v = 0;
         void return_value(int value) noexcept { v = value; }
         void unhandled_exception() noexcept {}
-        auto initial_suspend() noexcept -> std::experimental::suspend_never{return {};}
-        auto final_suspend() noexcept -> std::experimental::suspend_always
+        auto initial_suspend() noexcept -> std::suspend_never{return {};}
+        auto final_suspend() noexcept -> std::suspend_always
         {
             return {};
         }
@@ -82,9 +89,9 @@ int main()
 {
     auto scoro_runner = SCoroRunner();
     while(!scoro_runner.handle.done())
-    {  
+    {
         scoro_runner.handle.resume();
-        Sleep(100);
+        sleep(1);
     }
     return 0;
 }
