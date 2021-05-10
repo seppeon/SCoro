@@ -1,0 +1,2 @@
+// Platform specifc configs
+#include <@PLATFORM_HEADER@>
