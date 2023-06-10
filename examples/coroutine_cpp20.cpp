@@ -1,8 +1,10 @@
 #include "SCoro.hpp"
+#include <chrono>
 #include <coroutine>
 #include <iostream>
 #include <random>
 #include <string>
+#include <thread>
 #include <platform_config.h>
 
 using default_handle = std::coroutine_handle<>;
@@ -91,7 +93,7 @@ int main()
     while(!scoro_runner.handle.done())
     {
         scoro_runner.handle.resume();
-        sleep(1);
+        std::this_thread::sleep_for(std::chrono::milliseconds(1));
     }
     return 0;
 }
